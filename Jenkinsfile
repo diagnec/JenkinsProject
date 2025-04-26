@@ -12,7 +12,7 @@ pipeline {
         stage('Cloner le dépôt') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/diagnec/projet_fil_rouge.git'
+                    url: 'https://github.com/diagnec/JenkinsProject.git'
             }
         }
         stage('Build des images') {
@@ -25,7 +25,7 @@ pipeline {
 
         stage('Push des images sur Docker Hub') {
             steps {
-                withDockerRegistry([credentialsId: 'docker_cred', url: '']) {
+                withDockerRegistry([credentialsId: 'cheikhTocken', url: '']) {
                     bat 'docker push $BACKEND_IMAGE:latest'
                     bat 'docker push $FRONTEND_IMAGE:latest'
                     bat 'docker push $MIGRATE_IMAGE:latest'
