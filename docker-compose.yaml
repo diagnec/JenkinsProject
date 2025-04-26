@@ -12,7 +12,7 @@ services:
     build: ./Frontend
     container_name: frontend_app
     ports:
-      - "8080:80"
+      - "8081:80"
     depends_on:
       - db
 
@@ -24,7 +24,7 @@ services:
       POSTGRES_PASSWORD: zou123
       POSTGRES_DB: odc_db
     ports:
-      - "5432:5432"  
+      - "5433":5432"  
     volumes:
       - postgres_data:/var/lib/postgresql/data  
 
