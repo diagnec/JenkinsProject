@@ -2,46 +2,39 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_USER = 'cheikh9708'
-        BACKEND_IMAGE = "${DOCKER_USER}/projetfilrouge_backend"
-        FRONTEND_IMAGE = "${DOCKER_USER}/projetfilrouge_frontend"
-        MIGRATE_IMAGE = "${DOCKER_USER}/projetfilrouge_migrate"
+        BACKEND_IMAGE = 'ton-backend-image'   // <-- Remplace par le nom que tu veux pour ton image Docker
     }
 
     stages {
-        stage('Cloner le dépôt') {
+        stage('Build de l\'image Backend') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/diagnec/JenkinsProject.git'
-            }
-        }
-        stage('Build des images') {
-            steps {
-                bat 'docker build -t $BACKEND_IMAGE:latest ./Backend/odc'
-                bat 'docker build -t $FRONTEND_IMAGE:latest ./Frontend'
-                bat 'docker build -t $MIGRATE_IMAGE:latest ./Backend/odc'
+                bat "docker build -t %BACKEND_IMAGE%:latest ./Backend/odc"
             }
         }
 
-        stage('Push des images sur Docker Hub') {
+        stage('Push de l\'image sur Docker Hub') {
             steps {
-                withDockerRegistry([credentialsId: 'cheikhTocken', url: '']) {
-                    bat 'docker push $BACKEND_IMAGE:latest'
-                    bat 'docker push $FRONTEND_IMAGE:latest'
-                    bat 'docker push $MIGRATE_IMAGE:latest'
-                }
+                bat """
+                docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%
+                docker tag %BACKEND_IMAGE%:latest %DOCKERHUB_USERNAME%/%BACKEND_IMAGE%:latest
+                docker push %DOCKERHUB_USERNAME%/%BACKEND_IMAGE%:latest
+                """
             }
         }
 
         stage('Déploiement local avec Docker Compose') {
             steps {
-                bat '''
-                    docker-compose down || true
-                    docker-compose pull
-                    docker-compose up -d --build
-                '''
+                bat "docker-compose up -d"
             }
         }
     }
-}
 
+    post {
+        failure {
+            echo 'Le pipeline a échoué.'
+        }
+        success {
+            echo 'Le pipeline a réussi !'
+        }
+    }
+}
