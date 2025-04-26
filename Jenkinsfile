@@ -12,30 +12,30 @@ pipeline {
         stage('Cloner le dépôt') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/zouboss/projet_fil_rouge.git'
+                    url: 'https://github.com/diagnec/projet_fil_rouge.git'
             }
         }
         stage('Build des images') {
             steps {
-                sh 'docker build -t $BACKEND_IMAGE:latest ./Backend/odc'
-                sh 'docker build -t $FRONTEND_IMAGE:latest ./Frontend'
-                sh 'docker build -t $MIGRATE_IMAGE:latest ./Backend/odc'
+                bat 'docker build -t $BACKEND_IMAGE:latest ./Backend/odc'
+                bat 'docker build -t $FRONTEND_IMAGE:latest ./Frontend'
+                bat 'docker build -t $MIGRATE_IMAGE:latest ./Backend/odc'
             }
         }
 
         stage('Push des images sur Docker Hub') {
             steps {
                 withDockerRegistry([credentialsId: 'docker_cred', url: '']) {
-                    sh 'docker push $BACKEND_IMAGE:latest'
-                    sh 'docker push $FRONTEND_IMAGE:latest'
-                    sh 'docker push $MIGRATE_IMAGE:latest'
+                    bat 'docker push $BACKEND_IMAGE:latest'
+                    bat 'docker push $FRONTEND_IMAGE:latest'
+                    bat 'docker push $MIGRATE_IMAGE:latest'
                 }
             }
         }
 
         stage('Déploiement local avec Docker Compose') {
             steps {
-                sh '''
+                bat '''
                     docker-compose down || true
                     docker-compose pull
                     docker-compose up -d --build
@@ -43,17 +43,5 @@ pipeline {
             }
         }
     }
-
-    post {
-        success {
-            mail to: 'alassanebenzecoly@gmail.com',
-                 subject: "✅ Déploiement local réussi",
-                 body: "L'application a été déployée localement avec succès."
-        }
-        failure {
-            mail to: 'alassanebenzecoly@gmail.com',
-                 subject: "❌ Échec du pipeline Jenkins",
-                 body: "Une erreur s’est produite, merci de vérifier Jenkins."
-        }
-    }
 }
+
