@@ -1,40 +1,60 @@
+
 pipeline {
     agent any
 
     environment {
-        BACKEND_IMAGE = 'ton-backend-image'   // <-- Remplace par le nom que tu veux pour ton image Docker
+        DOCKER_USER = 'zouboss'
+        BACKEND_IMAGE = "${DOCKER_USER}/projetfilrouge_backend"
+        FRONTEND_IMAGE = "${DOCKER_USER}/projetfilrouge_frontend"
+        MIGRATE_IMAGE = "${DOCKER_USER}/projetfilrouge_migrate"
     }
 
     stages {
-        stage('Build de l\'image Backend') {
+        stage('Cloner le dépôt') {
             steps {
-                bat "docker build -t %BACKEND_IMAGE%:latest ./Backend/odc"
+                git branch: 'main',
+                    url: ''
+            }
+        }
+        stage('Build des images') {
+            steps {
+                sh 'docker build -t $BACKEND_IMAGE:latest ./Backend/odc'
+                sh 'docker build -t $FRONTEND_IMAGE:latest ./Frontend'
+                sh 'docker build -t $MIGRATE_IMAGE:latest ./Backend/odc'
             }
         }
 
-        stage('Push de l\'image sur Docker Hub') {
+        stage('Push des images sur Docker Hub') {
             steps {
-                bat """
-                docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%
-                docker tag %BACKEND_IMAGE%:latest %DOCKERHUB_USERNAME%/%BACKEND_IMAGE%:latest
-                docker push %DOCKERHUB_USERNAME%/%BACKEND_IMAGE%:latest
-                """
+                withDockerRegistry([credentialsId: 'docker_cred', url: '']) {
+                    sh 'docker push $BACKEND_IMAGE:latest'
+                    sh 'docker push $FRONTEND_IMAGE:latest'
+                    sh 'docker push $MIGRATE_IMAGE:latest'
+                }
             }
         }
 
         stage('Déploiement local avec Docker Compose') {
             steps {
-                bat "docker-compose up -d"
+                sh '''
+                    docker-compose down || true
+                    docker-compose pull
+                    docker-compose up -d --build
+                '''
             }
         }
     }
 
     post {
-        failure {
-            echo 'Le pipeline a échoué.'
-        }
         success {
-            echo 'Le pipeline a réussi !'
+            mail to: 'alassanebenzecoly@gmail.com',
+                 subject: "✅ Déploiement local réussi",
+                 body: "L'application a été déployée localement avec succès."
+        }
+        failure {
+            mail to: 'alassanebenzecoly@gmail.com',
+                 subject: "❌ Échec du pipeline Jenkins",
+                 body: "Une erreur s’est produite, merci de vérifier Jenkins."
         }
     }
 }
