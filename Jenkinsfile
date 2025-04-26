@@ -12,7 +12,7 @@ pipeline {
         stage('Cloner le dépôt') {
             steps {
                 git branch: 'main',
-                    url: ''
+                    url: 'https://github.com/diagnec/JenkinsProject.git'
             }
         }
 
@@ -28,7 +28,7 @@ pipeline {
 
        stage('Push des images sur Docker Hub') {
     steps {
-        withDockerRegistry([credentialsId: 'docker_cred', url: '']) {
+        withDockerRegistry([credentialsId: 'cheikhTocken', url: '']) {
             bat "docker push %BACKEND_IMAGE%:latest"
             bat "docker push %FRONTEND_IMAGE%:latest"
             bat "docker push %MIGRATE_IMAGE%:latest"
@@ -47,16 +47,4 @@ pipeline {
             }
         }
     }
-
-    post {
-        success {
-            mail to: 'dieye6526@gmail.com',
-                 subject: "✅ Déploiement local réussi!",
-                 body: "L'application a été déployée localement avec succès."
-        }
-        failure {
-            mail to: 'dieye6526@gmail.com',
-                 subject: "❌ Échec du pipeline Jenkins",
-                 body: "Une erreur s'est produite, merci de vérifier Jenkins."
-        }
-    }
+}   
