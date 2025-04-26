@@ -24,7 +24,7 @@ services:
       POSTGRES_PASSWORD: zou123
       POSTGRES_DB: odc_db
     ports:
-      - "5433":5432"  
+      - "5433:5432"  
     volumes:
       - postgres_data:/var/lib/postgresql/data  
 
