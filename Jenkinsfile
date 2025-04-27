@@ -26,7 +26,7 @@ pipeline {
 
         stage('Push des images sur Docker Hub') {
             steps {
-                withDockerRegistry([credentialsId: 'cheikhTocken', url: 'https://index.docker.io/v1/']) {
+                withDockerRegistry([credentialsId: 'awsTocken', url: 'https://index.docker.io/v1/']) {
                     sh "docker push ${BACKEND_IMAGE}:latest"
                     sh "docker push ${FRONTEND_IMAGE}:latest"
                     sh "docker push ${MIGRATE_IMAGE}:latest"
