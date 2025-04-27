@@ -58,4 +58,5 @@ pipeline {
                  body: "Une erreur s’est produite, merci de vérifier Jenkins."
         }
     }
+  }
 }   
