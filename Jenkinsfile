@@ -46,5 +46,16 @@ pipeline {
                 '''
             }
         }
+        post {
+        success {
+            mail to: 'diagnec809@gmail.com',
+                 subject: "✅ Déploiement local réussi",
+                 body: "L'application a été déployée localement avec succès."
+        }
+        failure {
+            mail to: 'diagnec809@gmail.com',
+                 subject: "❌ Échec du pipeline Jenkins",
+                 body: "Une erreur s’est produite, merci de vérifier Jenkins."
+        }
     }
 }   
