@@ -4,7 +4,7 @@
     environment {
         SONARQUBE_SERVER = 'SonarQube'   // Nom de ton serveur Sonar dans Jenkins
         SONARQUBE_TOKEN = credentials('CheikhTockenFilRouge')  // ID de ton credential
-        SONARQUBE_key="FileRouge"
+    
     }
 
     stages {
@@ -21,9 +21,9 @@
                         def scannerHome = tool 'SonarScanner' // <- Ici on charge SonarScanner installé dans Jenkins
                         bat """
                             ${scannerHome}/bin/sonar-scanner.bat
-                               -D"sonar.projectKey=${SONARQUBE_key}" 
-                               -D"sonar.sources=."
-                               -D"sonar.host.url=http://localhost:9000" 
+                               -D"sonar.projectKey="FileRouge" 
+                               -D"sonar.sources=." 
+                               -D"sonar.host.url=http://localhost:9000 
                                -D"sonar.token=${SONARQUBE_TOKEN}"
                         """
                     }
